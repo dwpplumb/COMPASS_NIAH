@@ -97,6 +97,60 @@ def cmd_ask(args: argparse.Namespace) -> int:
     return 0
 
 
+def _load_questions(path: str) -> list[str]:
+    p = Path(path)
+    if p.suffix.lower() == ".json":
+        obj = json.loads(p.read_text(encoding="utf-8"))
+        if not isinstance(obj, list):
+            raise ValueError("questions JSON must be a list of strings")
+        return [str(x).strip() for x in obj if str(x).strip()]
+    return [ln.strip() for ln in p.read_text(encoding="utf-8").splitlines() if ln.strip()]
+
+
+def cmd_ask_batch(args: argparse.Namespace) -> int:
+    cfg = load_config()
+    questions = _load_questions(args.questions_file)
+    if not questions:
+        raise RuntimeError("No questions found.")
+
+    for q in questions:
+        run_id = new_run_id()
+        if args.mode == "full_context":
+            if not args.context_file:
+                raise RuntimeError("--context-file is required for mode=full_context")
+            context_text = _read_text(args.context_file)
+            out = ask_full_context(
+                cfg=cfg,
+                namespace=args.namespace,
+                context_text=context_text,
+                question=q,
+                run_id=run_id,
+            )
+        else:
+            out = ask_rag_sql_embeddings(
+                cfg=cfg,
+                namespace=args.namespace,
+                question=q,
+                run_id=run_id,
+            )
+        print(
+            json.dumps(
+                {
+                    "run_id": out.run_id,
+                    "mode": args.mode,
+                    "namespace": args.namespace,
+                    "question": q,
+                    "prompt_tokens_est": out.prompt_tokens_est,
+                    "completion_tokens_est": out.completion_tokens_est,
+                    "total_tokens_est": out.prompt_tokens_est + out.completion_tokens_est,
+                    "latency_ms": out.latency_ms,
+                },
+                ensure_ascii=False,
+            )
+        )
+    return 0
+
+
 def cmd_debug_retrieve(args: argparse.Namespace) -> int:
     cfg = load_config()
     print(format_hits_for_stdout(cfg=cfg, namespace=args.namespace, question=args.question))
@@ -122,6 +176,13 @@ def main() -> int:
     p2.add_argument("--question", required=True)
     p2.add_argument("--context-file", default="", help="Required for full_context mode")
     p2.set_defaults(fn=cmd_ask)
+
+    p2b = sub.add_parser("ask-batch", help="Run multiple questions from file in chosen mode")
+    p2b.add_argument("--mode", required=True, choices=["full_context", "rag_sql_embeddings"])
+    p2b.add_argument("--namespace", required=True)
+    p2b.add_argument("--questions-file", required=True, help="TXT (one question per line) or JSON list")
+    p2b.add_argument("--context-file", default="", help="Required for full_context mode")
+    p2b.set_defaults(fn=cmd_ask_batch)
 
     p3 = sub.add_parser("debug-retrieve", help="Print top retrieved chunks for question")
     p3.add_argument("--namespace", required=True)

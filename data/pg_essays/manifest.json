@@ -1,0 +1,122 @@
+[
+  {
+    "id": "essay1",
+    "title": "The Age of the Essay",
+    "source_url": "https://paulgraham.com/essay.html",
+    "path": "data/pg_essays/essay1.txt",
+    "chars": 23862,
+    "words_est": 4199
+  },
+  {
+    "id": "essay2",
+    "title": "What You Can't Say",
+    "source_url": "https://paulgraham.com/say.html",
+    "path": "data/pg_essays/essay2.txt",
+    "chars": 30285,
+    "words_est": 5358
+  },
+  {
+    "id": "essay3",
+    "title": "The Bus Ticket Theory of Genius",
+    "source_url": "https://paulgraham.com/genius.html",
+    "path": "data/pg_essays/essay3.txt",
+    "chars": 11665,
+    "words_est": 2041
+  },
+  {
+    "id": "essay4",
+    "title": "Write Like You Talk",
+    "source_url": "https://paulgraham.com/talk.html",
+    "path": "data/pg_essays/essay4.txt",
+    "chars": 3960,
+    "words_est": 700
+  },
+  {
+    "id": "essay5",
+    "title": "Maker's Schedule, Manager's Schedule",
+    "source_url": "https://paulgraham.com/makerschedule.html",
+    "path": "data/pg_essays/essay5.txt",
+    "chars": 6384,
+    "words_est": 1132
+  },
+  {
+    "id": "essay6",
+    "title": "Good and Bad Procrastination",
+    "source_url": "https://paulgraham.com/procrastination.html",
+    "path": "data/pg_essays/essay6.txt",
+    "chars": 10024,
+    "words_est": 1791
+  },
+  {
+    "id": "essay7",
+    "title": "The Top Idea in Your Mind",
+    "source_url": "https://paulgraham.com/top.html",
+    "path": "data/pg_essays/essay7.txt",
+    "chars": 5810,
+    "words_est": 1053
+  },
+  {
+    "id": "essay8",
+    "title": "Holding a Program in One's Head",
+    "source_url": "https://paulgraham.com/head.html",
+    "path": "data/pg_essays/essay8.txt",
+    "chars": 10270,
+    "words_est": 1812
+  },
+  {
+    "id": "essay9",
+    "title": "Startup = Growth",
+    "source_url": "https://paulgraham.com/growth.html",
+    "path": "data/pg_essays/essay9.txt",
+    "chars": 24811,
+    "words_est": 4280
+  },
+  {
+    "id": "essay10",
+    "title": "The Acceleration of Addictiveness",
+    "source_url": "https://paulgraham.com/addict.html",
+    "path": "data/pg_essays/essay10.txt",
+    "chars": 5602,
+    "words_est": 964
+  },
+  {
+    "id": "essay11",
+    "title": "The Anatomy of Determination",
+    "source_url": "https://paulgraham.com/determ.html",
+    "path": "data/pg_essays/essay11.txt",
+    "chars": 8052,
+    "words_est": 1336
+  },
+  {
+    "id": "essay12",
+    "title": "What Kate Saw in Silicon Valley",
+    "source_url": "https://paulgraham.com/kate.html",
+    "path": "data/pg_essays/essay12.txt",
+    "chars": 4758,
+    "words_est": 819
+  },
+  {
+    "id": "essay13",
+    "title": "The Origins of Wokeness",
+    "source_url": "https://paulgraham.com/woke.html",
+    "path": "data/pg_essays/essay13.txt",
+    "chars": 28020,
+    "words_est": 4710
+  },
+  {
+    "id": "essay14",
+    "title": "Writes and Write-Nots",
+    "source_url": "https://paulgraham.com/writes.html",
+    "path": "data/pg_essays/essay14.txt",
+    "chars": 3057,
+    "words_est": 543
+  },
+  {
+    "id": "essay15",
+    "title": "When To Do What You Love",
+    "source_url": "https://paulgraham.com/love.html",
+    "path": "data/pg_essays/essay15.txt",
+    "chars": 23509,
+    "words_est": 4339
+  }
+]

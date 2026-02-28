@@ -58,6 +58,38 @@ Inspect retrieval:
 python -m niah.cli debug-retrieve --namespace bench_001 --question "What is the needle?"
 ```
 
+Batch ask (for many questions from file):
+
+```powershell
+python -m niah.cli ask-batch --mode rag_sql_embeddings --namespace bench_001 --questions-file .\data\questions.txt
+```
+
+## Haystack Preparation
+
+Prepare 15 PG essays from local files (recommended for reproducibility):
+
+```powershell
+python .\tools\prepare_pg_essays.py --mode from_local --local-dir .\data\pg_essays_raw --out-dir .\data\pg_essays
+```
+
+Optional direct URL fetch:
+
+```powershell
+python .\tools\prepare_pg_essays.py --mode from_urls --out-dir .\data\pg_essays
+```
+
+Build large haystack + inject needles:
+
+```powershell
+python .\tools\build_haystack.py --essays-dir .\data\pg_essays --needles-file .\data\needles.txt --global-repeat 8
+```
+
+Then ingest into RAG:
+
+```powershell
+python -m niah.cli ingest --namespace niah_bench --doc-id haystack1 --file .\data\full_haystack_with_needles.txt
+```
+
 ## Logging
 
 Each `ask` appends a JSON record to `NIAH_LOG_JSONL_PATH` (default `logs/runs.jsonl`):
