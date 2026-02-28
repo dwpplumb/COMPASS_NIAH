@@ -35,6 +35,7 @@ class AppConfig:
     llm_api_key: str
     llm_model: str
     llm_timeout_s: float
+    llm_temperature: float
     embeddings_provider: str
     embeddings_endpoint_url: str
     embeddings_api_key: str
@@ -49,6 +50,8 @@ class AppConfig:
     rag_chunk_chars: int
     rag_chunk_overlap_chars: int
     log_jsonl_path: str
+    prompt_io_log_jsonl_path: str
+    prompt_io_log_enabled: bool
 
 
 def load_config() -> AppConfig:
@@ -58,6 +61,7 @@ def load_config() -> AppConfig:
         llm_api_key=_env_str("NIAH_LLM_API_KEY"),
         llm_model=_env_str("NIAH_LLM_MODEL"),
         llm_timeout_s=_env_float("NIAH_LLM_TIMEOUT_S", 120.0),
+        llm_temperature=_env_float("NIAH_LLM_TEMPERATURE", 0.0),
         embeddings_provider=_env_str("NIAH_EMBEDDINGS_PROVIDER", "deterministic").lower(),
         embeddings_endpoint_url=_env_str("NIAH_EMBEDDINGS_ENDPOINT_URL"),
         embeddings_api_key=_env_str("NIAH_EMBEDDINGS_API_KEY"),
@@ -72,6 +76,8 @@ def load_config() -> AppConfig:
         rag_chunk_chars=_env_int("NIAH_RAG_CHUNK_CHARS", 1200),
         rag_chunk_overlap_chars=_env_int("NIAH_RAG_CHUNK_OVERLAP_CHARS", 200),
         log_jsonl_path=_env_str("NIAH_LOG_JSONL_PATH", "logs/runs.jsonl"),
+        prompt_io_log_jsonl_path=_env_str("NIAH_PROMPT_IO_LOG_JSONL_PATH", "logs/prompt_io.jsonl"),
+        prompt_io_log_enabled=_env_str("NIAH_PROMPT_IO_LOG_ENABLED", "1").lower() in {"1", "true", "yes", "on"},
     )
 
 

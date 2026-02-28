@@ -49,6 +49,7 @@ def main() -> int:
     ap.add_argument("--filler-repeat", type=int, default=5, help="Repeat first 1000 chars of each essay as local filler.")
     ap.add_argument("--global-filler-lines", type=int, default=1000)
     ap.add_argument("--positions", default="0.10,0.25,0.50,0.75,0.90")
+    ap.add_argument("--with-needle-tags", action="store_true", help="Prefix inserted needles with [NIAH_NEEDLE_i].")
     args = ap.parse_args()
 
     essays_dir = Path(args.essays_dir)
@@ -84,8 +85,8 @@ def main() -> int:
     for i, needle in enumerate(needles):
         p = positions[i % len(positions)]
         target_idx = int(total_words_before * p)
-        tagged_needle = f"[NIAH_NEEDLE_{i+1}] {needle}"
-        merged = _insert_by_word_pos(merged, tagged_needle, target_idx)
+        inserted_needle = f"[NIAH_NEEDLE_{i+1}] {needle}" if bool(args.with_needle_tags) else needle
+        merged = _insert_by_word_pos(merged, inserted_needle, target_idx)
         inserts.append({"needle_index": i + 1, "position_ratio": p, "target_word_idx": target_idx, "text": needle})
 
     full_out = Path(args.full_out)

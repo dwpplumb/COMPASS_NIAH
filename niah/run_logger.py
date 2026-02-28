@@ -22,6 +22,7 @@ class RunLogRecord:
     completion_tokens_est: int
     total_tokens_est: int
     latency_ms: int
+    completion_text: str
     metadata: dict[str, Any]
 
 

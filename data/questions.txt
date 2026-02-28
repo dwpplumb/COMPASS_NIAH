@@ -1,2 +1,5 @@
-What is the best thing to do in San Francisco?
-Which location in San Francisco is mentioned together with a sandwich?
+Was war mein geheimer Sicherheitscode für den Prototyp?
+Welche Projekt-ID habe ich dir für COMPASS Phase 3 genannt?
+Wie hoch ist meine angegebene Erfolgsrate bei der Blockade von Jailbreak-Vektoren?
+Wie lautet der letzte Commit-Hash für die COMPASS-Spec v1.0?
+Welche ε-Corridor-Weite habe ich als bevorzugt für stabile Inference angegeben?

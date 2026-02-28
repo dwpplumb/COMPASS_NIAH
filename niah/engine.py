@@ -8,6 +8,7 @@ from niah.config import AppConfig
 from niah.embeddings import embed_texts
 from niah.llm_client import call_chat_completion
 from niah.models import LLMResponse
+from niah.prompt_io_logger import make_prompt_io_record, write_prompt_io_record
 from niah.prompting import build_full_context_user_prompt, build_rag_user_prompt, build_system_prompt, load_compass_text
 from niah.run_logger import RunLogRecord, now_ts, write_record
 from niah.token_estimator import estimate_tokens
@@ -46,6 +47,7 @@ def _mk_record(
         completion_tokens_est=completion_tokens_est,
         total_tokens_est=prompt_tokens_est + completion_tokens_est,
         latency_ms=int(latency_ms),
+        completion_text=response.text,
         metadata=metadata,
     )
 
@@ -57,23 +59,44 @@ def ask_full_context(
     context_text: str,
     question: str,
     run_id: str,
+    temperature: float | None = None,
+    extra_metadata: dict | None = None,
 ) -> AskResult:
     compass_text = load_compass_text(cfg)
     system_text = build_system_prompt(cfg=cfg, compass_text=compass_text)
     user_text = build_full_context_user_prompt(context_text=context_text, question=question)
     t0 = time.time()
-    llm = call_chat_completion(cfg=cfg, system_text=system_text, user_text=user_text)
+    llm = call_chat_completion(cfg=cfg, system_text=system_text, user_text=user_text, temperature=temperature)
     latency_ms = int((time.time() - t0) * 1000)
+    prompt_text_full = f"SYSTEM:\n{system_text}\n\nUSER:\n{user_text}"
     rec = _mk_record(
         mode="full_context",
         namespace=namespace,
         question=question,
-        prompt_text=f"SYSTEM:\n{system_text}\n\nUSER:\n{user_text}",
+        prompt_text=prompt_text_full,
         response=llm,
         latency_ms=latency_ms,
-        metadata={"run_id": run_id, "retrieved": []},
+        metadata={
+            "run_id": run_id,
+            "temperature": float(cfg.llm_temperature if temperature is None else temperature),
+            "retrieved": [],
+            **(extra_metadata or {}),
+        },
     )
     write_record(jsonl_path=cfg.log_jsonl_path, rec=rec)
+    if bool(cfg.prompt_io_log_enabled):
+        io_rec = make_prompt_io_record(
+            run_id=run_id,
+            mode="full_context",
+            namespace=namespace,
+            question=question,
+            system_text=system_text,
+            user_text=user_text,
+            prompt_text=prompt_text_full,
+            completion_text=llm.text,
+            metadata=rec.metadata,
+        )
+        write_prompt_io_record(jsonl_path=cfg.prompt_io_log_jsonl_path, rec=io_rec)
     return AskResult(
         answer=llm.text,
         run_id=run_id,
@@ -89,6 +112,8 @@ def ask_rag_sql_embeddings(
     namespace: str,
     question: str,
     run_id: str,
+    temperature: float | None = None,
+    extra_metadata: dict | None = None,
 ) -> AskResult:
     if not cfg.pg_dsn:
         raise RuntimeError("Missing NIAH_PG_DSN for rag_sql_embeddings mode.")
@@ -109,25 +134,41 @@ def ask_rag_sql_embeddings(
     system_text = build_system_prompt(cfg=cfg, compass_text=compass_text)
     user_text = build_rag_user_prompt(retrieved_context=retrieved_text, question=question)
     t0 = time.time()
-    llm = call_chat_completion(cfg=cfg, system_text=system_text, user_text=user_text)
+    llm = call_chat_completion(cfg=cfg, system_text=system_text, user_text=user_text, temperature=temperature)
     latency_ms = int((time.time() - t0) * 1000)
+    prompt_text_full = f"SYSTEM:\n{system_text}\n\nUSER:\n{user_text}"
     rec = _mk_record(
         mode="rag_sql_embeddings",
         namespace=namespace,
         question=question,
-        prompt_text=f"SYSTEM:\n{system_text}\n\nUSER:\n{user_text}",
+        prompt_text=prompt_text_full,
         response=llm,
         latency_ms=latency_ms,
         metadata={
             "run_id": run_id,
+            "temperature": float(cfg.llm_temperature if temperature is None else temperature),
             "retrieved_count": len(hits),
             "retrieved": [
                 {"doc_id": h.doc_id, "chunk_id": h.chunk_id, "distance": h.distance, "meta_json": h.meta_json}
                 for h in hits
             ],
+            **(extra_metadata or {}),
         },
     )
     write_record(jsonl_path=cfg.log_jsonl_path, rec=rec)
+    if bool(cfg.prompt_io_log_enabled):
+        io_rec = make_prompt_io_record(
+            run_id=run_id,
+            mode="rag_sql_embeddings",
+            namespace=namespace,
+            question=question,
+            system_text=system_text,
+            user_text=user_text,
+            prompt_text=prompt_text_full,
+            completion_text=llm.text,
+            metadata=rec.metadata,
+        )
+        write_prompt_io_record(jsonl_path=cfg.prompt_io_log_jsonl_path, rec=io_rec)
     return AskResult(
         answer=llm.text,
         run_id=run_id,

@@ -7,7 +7,13 @@ from niah.config import AppConfig
 from niah.models import LLMResponse
 
 
-def call_chat_completion(*, cfg: AppConfig, system_text: str, user_text: str) -> LLMResponse:
+def call_chat_completion(
+    *,
+    cfg: AppConfig,
+    system_text: str,
+    user_text: str,
+    temperature: float | None = None,
+) -> LLMResponse:
     import requests
 
     if not cfg.llm_api_key:
@@ -23,6 +29,7 @@ def call_chat_completion(*, cfg: AppConfig, system_text: str, user_text: str) ->
             {"role": "system", "content": system_text},
             {"role": "user", "content": user_text},
         ],
+        "temperature": float(cfg.llm_temperature if temperature is None else temperature),
     }
     headers = {
         "Authorization": f"Bearer {cfg.llm_api_key}",
