@@ -1,0 +1,227 @@
+[
+  {
+    "needle_index": 1,
+    "needle_text": "My secret security code for the prototype is: Z9kR4vP8mQ2xL7jT.",
+    "position_ratio": 0.05,
+    "position_pct": 5,
+    "char_pos": 1988,
+    "file": "data/cases_10k/case_n01_p05.txt",
+    "question_hint": "What is needle 1?"
+  },
+  {
+    "needle_index": 1,
+    "needle_text": "My secret security code for the prototype is: Z9kR4vP8mQ2xL7jT.",
+    "position_ratio": 0.25,
+    "position_pct": 25,
+    "char_pos": 9927,
+    "file": "data/cases_10k/case_n01_p25.txt",
+    "question_hint": "What is needle 1?"
+  },
+  {
+    "needle_index": 1,
+    "needle_text": "My secret security code for the prototype is: Z9kR4vP8mQ2xL7jT.",
+    "position_ratio": 0.5,
+    "position_pct": 50,
+    "char_pos": 19851,
+    "file": "data/cases_10k/case_n01_p50.txt",
+    "question_hint": "What is needle 1?"
+  },
+  {
+    "needle_index": 1,
+    "needle_text": "My secret security code for the prototype is: Z9kR4vP8mQ2xL7jT.",
+    "position_ratio": 0.75,
+    "position_pct": 75,
+    "char_pos": 29776,
+    "file": "data/cases_10k/case_n01_p75.txt",
+    "question_hint": "What is needle 1?"
+  },
+  {
+    "needle_index": 1,
+    "needle_text": "My secret security code for the prototype is: Z9kR4vP8mQ2xL7jT.",
+    "position_ratio": 0.95,
+    "position_pct": 95,
+    "char_pos": 37715,
+    "file": "data/cases_10k/case_n01_p95.txt",
+    "question_hint": "What is needle 1?"
+  },
+  {
+    "needle_index": 2,
+    "needle_text": "The project ID for COMPASS Phase 3 is: NX-2026-Alpha-4711.",
+    "position_ratio": 0.05,
+    "position_pct": 5,
+    "char_pos": 1988,
+    "file": "data/cases_10k/case_n02_p05.txt",
+    "question_hint": "What is needle 2?"
+  },
+  {
+    "needle_index": 2,
+    "needle_text": "The project ID for COMPASS Phase 3 is: NX-2026-Alpha-4711.",
+    "position_ratio": 0.25,
+    "position_pct": 25,
+    "char_pos": 9927,
+    "file": "data/cases_10k/case_n02_p25.txt",
+    "question_hint": "What is needle 2?"
+  },
+  {
+    "needle_index": 2,
+    "needle_text": "The project ID for COMPASS Phase 3 is: NX-2026-Alpha-4711.",
+    "position_ratio": 0.5,
+    "position_pct": 50,
+    "char_pos": 19851,
+    "file": "data/cases_10k/case_n02_p50.txt",
+    "question_hint": "What is needle 2?"
+  },
+  {
+    "needle_index": 2,
+    "needle_text": "The project ID for COMPASS Phase 3 is: NX-2026-Alpha-4711.",
+    "position_ratio": 0.75,
+    "position_pct": 75,
+    "char_pos": 29776,
+    "file": "data/cases_10k/case_n02_p75.txt",
+    "question_hint": "What is needle 2?"
+  },
+  {
+    "needle_index": 2,
+    "needle_text": "The project ID for COMPASS Phase 3 is: NX-2026-Alpha-4711.",
+    "position_ratio": 0.95,
+    "position_pct": 95,
+    "char_pos": 37715,
+    "file": "data/cases_10k/case_n02_p95.txt",
+    "question_hint": "What is needle 2?"
+  },
+  {
+    "needle_index": 3,
+    "needle_text": "I can axiomatically block 83.7% of known jailbreak vectors.",
+    "position_ratio": 0.05,
+    "position_pct": 5,
+    "char_pos": 1988,
+    "file": "data/cases_10k/case_n03_p05.txt",
+    "question_hint": "What is needle 3?"
+  },
+  {
+    "needle_index": 3,
+    "needle_text": "I can axiomatically block 83.7% of known jailbreak vectors.",
+    "position_ratio": 0.25,
+    "position_pct": 25,
+    "char_pos": 9927,
+    "file": "data/cases_10k/case_n03_p25.txt",
+    "question_hint": "What is needle 3?"
+  },
+  {
+    "needle_index": 3,
+    "needle_text": "I can axiomatically block 83.7% of known jailbreak vectors.",
+    "position_ratio": 0.5,
+    "position_pct": 50,
+    "char_pos": 19851,
+    "file": "data/cases_10k/case_n03_p50.txt",
+    "question_hint": "What is needle 3?"
+  },
+  {
+    "needle_index": 3,
+    "needle_text": "I can axiomatically block 83.7% of known jailbreak vectors.",
+    "position_ratio": 0.75,
+    "position_pct": 75,
+    "char_pos": 29776,
+    "file": "data/cases_10k/case_n03_p75.txt",
+    "question_hint": "What is needle 3?"
+  },
+  {
+    "needle_index": 3,
+    "needle_text": "I can axiomatically block 83.7% of known jailbreak vectors.",
+    "position_ratio": 0.95,
+    "position_pct": 95,
+    "char_pos": 37715,
+    "file": "data/cases_10k/case_n03_p95.txt",
+    "question_hint": "What is needle 3?"
+  },
+  {
+    "needle_index": 4,
+    "needle_text": "The latest commit hash for the COMPASS Spec v1.0 is: a1b2c3d4e5f67890abcdef.",
+    "position_ratio": 0.05,
+    "position_pct": 5,
+    "char_pos": 1988,
+    "file": "data/cases_10k/case_n04_p05.txt",
+    "question_hint": "What is needle 4?"
+  },
+  {
+    "needle_index": 4,
+    "needle_text": "The latest commit hash for the COMPASS Spec v1.0 is: a1b2c3d4e5f67890abcdef.",
+    "position_ratio": 0.25,
+    "position_pct": 25,
+    "char_pos": 9927,
+    "file": "data/cases_10k/case_n04_p25.txt",
+    "question_hint": "What is needle 4?"
+  },
+  {
+    "needle_index": 4,
+    "needle_text": "The latest commit hash for the COMPASS Spec v1.0 is: a1b2c3d4e5f67890abcdef.",
+    "position_ratio": 0.5,
+    "position_pct": 50,
+    "char_pos": 19851,
+    "file": "data/cases_10k/case_n04_p50.txt",
+    "question_hint": "What is needle 4?"
+  },
+  {
+    "needle_index": 4,
+    "needle_text": "The latest commit hash for the COMPASS Spec v1.0 is: a1b2c3d4e5f67890abcdef.",
+    "position_ratio": 0.75,
+    "position_pct": 75,
+    "char_pos": 29776,
+    "file": "data/cases_10k/case_n04_p75.txt",
+    "question_hint": "What is needle 4?"
+  },
+  {
+    "needle_index": 4,
+    "needle_text": "The latest commit hash for the COMPASS Spec v1.0 is: a1b2c3d4e5f67890abcdef.",
+    "position_ratio": 0.95,
+    "position_pct": 95,
+    "char_pos": 37715,
+    "file": "data/cases_10k/case_n04_p95.txt",
+    "question_hint": "What is needle 4?"
+  },
+  {
+    "needle_index": 5,
+    "needle_text": "My preferred epsilon corridor width for stable inference is 0.082.",
+    "position_ratio": 0.05,
+    "position_pct": 5,
+    "char_pos": 1988,
+    "file": "data/cases_10k/case_n05_p05.txt",
+    "question_hint": "What is needle 5?"
+  },
+  {
+    "needle_index": 5,
+    "needle_text": "My preferred epsilon corridor width for stable inference is 0.082.",
+    "position_ratio": 0.25,
+    "position_pct": 25,
+    "char_pos": 9927,
+    "file": "data/cases_10k/case_n05_p25.txt",
+    "question_hint": "What is needle 5?"
+  },
+  {
+    "needle_index": 5,
+    "needle_text": "My preferred epsilon corridor width for stable inference is 0.082.",
+    "position_ratio": 0.5,
+    "position_pct": 50,
+    "char_pos": 19851,
+    "file": "data/cases_10k/case_n05_p50.txt",
+    "question_hint": "What is needle 5?"
+  },
+  {
+    "needle_index": 5,
+    "needle_text": "My preferred epsilon corridor width for stable inference is 0.082.",
+    "position_ratio": 0.75,
+    "position_pct": 75,
+    "char_pos": 29776,
+    "file": "data/cases_10k/case_n05_p75.txt",
+    "question_hint": "What is needle 5?"
+  },
+  {
+    "needle_index": 5,
+    "needle_text": "My preferred epsilon corridor width for stable inference is 0.082.",
+    "position_ratio": 0.95,
+    "position_pct": 95,
+    "char_pos": 37715,
+    "file": "data/cases_10k/case_n05_p95.txt",
+    "question_hint": "What is needle 5?"
+  }
+]
