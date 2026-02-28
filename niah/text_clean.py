@@ -7,6 +7,7 @@ def clean_completion_text(text: str) -> str:
     out = str(text or "").strip()
     if not out:
         return out
+    out = re.sub(r"^\s*assistant\s*:\s*", "", out, flags=re.IGNORECASE).strip()
     out = out.replace("```", "").strip()
     out = re.sub(r"^\*\*(.*?)\*\*$", r"\1", out, flags=re.DOTALL).strip()
     out = out.strip("*").strip()

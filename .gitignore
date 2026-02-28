@@ -4,3 +4,9 @@
 __pycache__/
 *.pyc
 logs/
+data/full_base_haystack.txt
+data/full_haystack_with_needles.txt
+data/haystack_manifest.json
+data/base_10k.txt
+data/cases/
+data/cases_*/
