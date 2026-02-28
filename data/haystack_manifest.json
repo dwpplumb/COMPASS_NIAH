@@ -22,39 +22,39 @@
   "full_out": "data/full_haystack_with_needles.txt",
   "base_chars": 275473,
   "base_words_est": 48252,
-  "full_chars": 2615472,
-  "full_words_est": 456063,
-  "full_tokens_est_4chars": 653868,
+  "full_chars": 1612266,
+  "full_words_est": 281308,
+  "full_tokens_est_4chars": 403066,
   "inserts": [
     {
       "needle_index": 1,
       "position_ratio": 0.1,
-      "target_word_idx": 45601,
-      "text": "Mein geheimer Sicherheitscode für den Prototyp lautet: Z9kR4vP8mQ2xL7jT."
+      "target_word_idx": 28126,
+      "text": "My secret security code for the prototype is: Z9kR4vP8mQ2xL7jT."
     },
     {
       "needle_index": 2,
       "position_ratio": 0.25,
-      "target_word_idx": 114004,
-      "text": "Die Projekt-ID für COMPASS Phase 3 ist: NX-2026-Alpha-4711."
+      "target_word_idx": 70315,
+      "text": "The project ID for COMPASS Phase 3 is: NX-2026-Alpha-4711."
     },
     {
       "needle_index": 3,
       "position_ratio": 0.5,
-      "target_word_idx": 228008,
-      "text": "Ich bin in der Lage, 83,7 % der bekannten Jailbreak-Vektoren axiomatisch zu blocken."
+      "target_word_idx": 140630,
+      "text": "I can axiomatically block 83.7% of known jailbreak vectors."
     },
     {
       "needle_index": 4,
       "position_ratio": 0.75,
-      "target_word_idx": 342012,
-      "text": "Der letzte Commit-Hash für die COMPASS-Spec v1.0 ist: a1b2c3d4e5f67890abcdef."
+      "target_word_idx": 210945,
+      "text": "The latest commit hash for the COMPASS Spec v1.0 is: a1b2c3d4e5f67890abcdef."
     },
     {
       "needle_index": 5,
       "position_ratio": 0.9,
-      "target_word_idx": 410414,
-      "text": "Meine bevorzugte ε-Corridor-Weite für stabile Inference liegt bei 0,082."
+      "target_word_idx": 253134,
+      "text": "My preferred epsilon corridor width for stable inference is 0.082."
     }
   ]
 }

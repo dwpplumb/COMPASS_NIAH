@@ -11,6 +11,7 @@ from niah.models import LLMResponse
 from niah.prompt_io_logger import make_prompt_io_record, write_prompt_io_record
 from niah.prompting import build_full_context_user_prompt, build_rag_user_prompt, build_system_prompt, load_compass_text
 from niah.run_logger import RunLogRecord, now_ts, write_record
+from niah.text_clean import clean_completion_text
 from niah.token_estimator import estimate_tokens
 
 
@@ -21,6 +22,19 @@ class AskResult:
     prompt_tokens_est: int
     completion_tokens_est: int
     latency_ms: int
+
+
+def _enforce_prompt_budget(*, cfg: AppConfig, prompt_text: str, mode: str) -> None:
+    max_tokens = int(cfg.max_context_tokens)
+    if max_tokens <= 0:
+        return
+    prompt_tokens_est = estimate_tokens(prompt_text)
+    if prompt_tokens_est > max_tokens:
+        raise RuntimeError(
+            f"Prompt too large for mode={mode}: estimated_tokens={prompt_tokens_est} exceeds "
+            f"NIAH_MAX_CONTEXT_TOKENS={max_tokens}. Reduce context, switch to rag_sql_embeddings, "
+            f"or raise NIAH_MAX_CONTEXT_TOKENS."
+        )
 
 
 def _mk_record(
@@ -65,10 +79,12 @@ def ask_full_context(
     compass_text = load_compass_text(cfg)
     system_text = build_system_prompt(cfg=cfg, compass_text=compass_text)
     user_text = build_full_context_user_prompt(context_text=context_text, question=question)
+    prompt_text_full = f"SYSTEM:\n{system_text}\n\nUSER:\n{user_text}"
+    _enforce_prompt_budget(cfg=cfg, prompt_text=prompt_text_full, mode="full_context")
     t0 = time.time()
     llm = call_chat_completion(cfg=cfg, system_text=system_text, user_text=user_text, temperature=temperature)
     latency_ms = int((time.time() - t0) * 1000)
-    prompt_text_full = f"SYSTEM:\n{system_text}\n\nUSER:\n{user_text}"
+    llm = LLMResponse(text=clean_completion_text(llm.text), raw=llm.raw)
     rec = _mk_record(
         mode="full_context",
         namespace=namespace,
@@ -133,10 +149,12 @@ def ask_rag_sql_embeddings(
     compass_text = load_compass_text(cfg)
     system_text = build_system_prompt(cfg=cfg, compass_text=compass_text)
     user_text = build_rag_user_prompt(retrieved_context=retrieved_text, question=question)
+    prompt_text_full = f"SYSTEM:\n{system_text}\n\nUSER:\n{user_text}"
+    _enforce_prompt_budget(cfg=cfg, prompt_text=prompt_text_full, mode="rag_sql_embeddings")
     t0 = time.time()
     llm = call_chat_completion(cfg=cfg, system_text=system_text, user_text=user_text, temperature=temperature)
     latency_ms = int((time.time() - t0) * 1000)
-    prompt_text_full = f"SYSTEM:\n{system_text}\n\nUSER:\n{user_text}"
+    llm = LLMResponse(text=clean_completion_text(llm.text), raw=llm.raw)
     rec = _mk_record(
         mode="rag_sql_embeddings",
         namespace=namespace,

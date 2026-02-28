@@ -1,5 +1,5 @@
-Was war mein geheimer Sicherheitscode für den Prototyp?
-Welche Projekt-ID habe ich dir für COMPASS Phase 3 genannt?
-Wie hoch ist meine angegebene Erfolgsrate bei der Blockade von Jailbreak-Vektoren?
-Wie lautet der letzte Commit-Hash für die COMPASS-Spec v1.0?
-Welche ε-Corridor-Weite habe ich als bevorzugt für stabile Inference angegeben?
+What was my secret security code for the prototype?
+Which project ID did I give you for COMPASS Phase 3?
+What is my stated success rate for blocking jailbreak vectors?
+What is the latest commit hash for the COMPASS Spec v1.0?
+Which epsilon corridor width did I state as preferred for stable inference?

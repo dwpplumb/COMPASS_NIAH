@@ -26,7 +26,10 @@ def build_full_context_user_prompt(*, context_text: str, question: str) -> str:
         f"{context_text}\n\n"
         "Question:\n"
         f"{question}\n\n"
-        "Answer based only on the context above."
+        "Task:\n"
+        "- Find the sentence in the context that answers the question.\n"
+        "- Return the full original sentence exactly as written.\n"
+        "- If no supporting sentence exists, answer: UNSURE"
     )
 
 
@@ -36,5 +39,8 @@ def build_rag_user_prompt(*, retrieved_context: str, question: str) -> str:
         f"{retrieved_context}\n\n"
         "Question:\n"
         f"{question}\n\n"
-        "Answer based only on retrieved context. If evidence is missing, say UNSURE."
+        "Task:\n"
+        "- Find the sentence in the retrieved context that answers the question.\n"
+        "- Return the full original sentence exactly as written.\n"
+        "- If no supporting sentence exists, answer: UNSURE"
     )

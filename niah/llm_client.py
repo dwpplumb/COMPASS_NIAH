@@ -30,6 +30,7 @@ def call_chat_completion(
             {"role": "user", "content": user_text},
         ],
         "temperature": float(cfg.llm_temperature if temperature is None else temperature),
+        "max_tokens": int(cfg.llm_max_output_tokens),
     }
     headers = {
         "Authorization": f"Bearer {cfg.llm_api_key}",

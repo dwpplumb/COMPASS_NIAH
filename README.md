@@ -26,6 +26,9 @@ Fill `.env`:
 - optional `NIAH_EMBEDDINGS_*` for real embeddings
   - default provider is `deterministic` to keep setup flexible
 
+If answers look truncated, raise:
+- `NIAH_LLM_MAX_OUTPUT_TOKENS` (e.g. `256` or `512`)
+
 ## Commands
 
 Initialize pgvector schema:
@@ -44,6 +47,13 @@ Ask in full-context mode:
 
 ```powershell
 python -m niah.cli ask --mode full_context --namespace bench_001 --context-file .\data\haystack.txt --question "What is the needle?"
+```
+
+Fast/cheap smoke test (without haystack):
+
+```powershell
+Set-Content .\data\mini_context.txt "My secret security code for the prototype is: Z9kR4vP8mQ2xL7jT."
+python -m niah.cli ask --mode full_context --namespace smoke --context-file .\data\mini_context.txt --question "Return the full exact sentence."
 ```
 
 Ask in RAG mode:
@@ -86,6 +96,18 @@ Show logged needle runs with expected needle text + model output:
 
 ```powershell
 python -m niah.cli verify-logs --only-probe --needles-file .\data\needles.txt --last-n 5
+```
+
+Evaluate probe runs (exact/partial/unsure):
+
+```powershell
+python -m niah.cli eval-probes --needles-file .\data\needles.txt --run-prefix probe_natural_v1_
+```
+
+If prompts ask for value-only outputs, evaluate with:
+
+```powershell
+python -m niah.cli eval-probes --needles-file .\data\needles.txt --run-prefix probe_natural_v1_ --match-mode value
 ```
 
 Optional deterministic controls:
@@ -151,3 +173,19 @@ $env:NIAH_PROMPT_IO_LOG_ENABLED="0"
 ```
 
 This is designed so you can run your own benchmark harness later and evaluate drift/recall from logs.
+
+## Cost Guardrail
+
+`NIAH_MAX_CONTEXT_TOKENS` is now actively enforced before every LLM call.
+If estimated prompt tokens exceed the limit, the run fails fast (no API call).
+
+Recommended for cost control:
+
+```powershell
+$env:NIAH_MAX_CONTEXT_TOKENS="120000"
+```
+
+For production-like runs, prefer:
+- `--mode rag_sql_embeddings`
+- lower `NIAH_RAG_TOP_K` (e.g. `4`)
+- keep `NIAH_RAG_CHUNK_CHARS` moderate (e.g. `800-1200`)

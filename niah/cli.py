@@ -9,6 +9,7 @@ from niah.config import load_config
 from niah.embeddings import embed_texts
 from niah.engine import ask_full_context, ask_rag_sql_embeddings, format_hits_for_stdout
 from niah.run_logger import new_run_id
+from niah.text_clean import clean_completion_text
 
 
 def _read_text(path: str) -> str:
@@ -100,6 +101,7 @@ def cmd_ask(args: argparse.Namespace) -> int:
                 "latency_ms": out.latency_ms,
                 "log_jsonl_path": cfg.log_jsonl_path,
                 "temperature": args.temperature if args.temperature is not None else cfg.llm_temperature,
+                "max_output_tokens": cfg.llm_max_output_tokens,
             },
             ensure_ascii=False,
         )
@@ -185,6 +187,7 @@ def cmd_ask_batch(args: argparse.Namespace) -> int:
                     "total_tokens_est": out.prompt_tokens_est + out.completion_tokens_est,
                     "latency_ms": out.latency_ms,
                     "temperature": args.temperature if args.temperature is not None else cfg.llm_temperature,
+                    "max_output_tokens": cfg.llm_max_output_tokens,
                 },
                 ensure_ascii=False,
             )
@@ -324,6 +327,236 @@ def cmd_verify_logs(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_eval_probes(args: argparse.Namespace) -> int:
+    cfg = load_config()
+    runs_file = str(args.runs_file).strip() if str(args.runs_file).strip() else cfg.log_jsonl_path
+    rows = _read_jsonl(runs_file)
+    needles = _load_needles(str(args.needles_file))
+    by_idx: dict[int, dict] = {}
+    for row in rows:
+        meta = row.get("metadata", {})
+        if not isinstance(meta, dict):
+            continue
+        if str(meta.get("probe_type", "")) != "needle_probe":
+            continue
+        if str(args.run_prefix or "").strip():
+            if not str(row.get("run_id", "")).startswith(str(args.run_prefix)):
+                continue
+        idx_raw = meta.get("needle_index", 0)
+        try:
+            idx = int(idx_raw)
+        except Exception:
+            continue
+        by_idx[idx] = row
+
+    exact = 0
+    partial = 0
+    unsure = 0
+    missing = 0
+    total = len(needles)
+
+    def _expected_from_needle(needle_text: str, mode: str) -> str:
+        t = needle_text.strip()
+        if mode == "value":
+            if ":" in t:
+                t = t.split(":", 1)[1].strip()
+            if t.endswith("."):
+                t = t[:-1].strip()
+        return t
+
+    match_mode = str(args.match_mode or "sentence").strip().lower()
+    if match_mode not in {"sentence", "value"}:
+        raise RuntimeError("--match-mode must be one of: sentence, value")
+
+    for i, needle in enumerate(needles, start=1):
+        row = by_idx.get(i)
+        if not row:
+            missing += 1
+            print(json.dumps({"needle_index": i, "status": "missing_run", "needle": needle}, ensure_ascii=True))
+            continue
+        completion = clean_completion_text(str(row.get("completion_text", "")))
+        expected = _expected_from_needle(needle.strip(), match_mode)
+        completion_l = completion.lower().strip()
+        expected_l = expected.lower().strip()
+        if completion_l == "unsure":
+            status = "unsure"
+            unsure += 1
+            score = 0.0
+        elif completion == expected:
+            status = "exact"
+            exact += 1
+            score = 1.0
+        elif expected_l and expected_l in completion_l:
+            status = "partial_contains"
+            partial += 1
+            score = 0.8
+        else:
+            status = "mismatch"
+            score = 0.0
+        print(
+            json.dumps(
+                {
+                    "needle_index": i,
+                    "run_id": row.get("run_id", ""),
+                    "status": status,
+                    "score": score,
+                    "match_mode": match_mode,
+                    "needle": expected,
+                    "completion_text": completion,
+                },
+                ensure_ascii=True,
+            )
+        )
+
+    print(
+        json.dumps(
+            {
+                "ok": True,
+                "runs_file": runs_file,
+                "match_mode": match_mode,
+                "total_needles": total,
+                "exact": exact,
+                "partial_contains": partial,
+                "unsure": unsure,
+                "missing_run": missing,
+                "exact_recall": (exact / total) if total else 0.0,
+            },
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def cmd_eval_posbench(args: argparse.Namespace) -> int:
+    cfg = load_config()
+    runs_file = str(args.runs_file).strip() if str(args.runs_file).strip() else cfg.log_jsonl_path
+    rows = _read_jsonl(runs_file)
+    needles = _load_needles(str(args.needles_file))
+
+    def _expected_from_needle(needle_text: str, mode: str) -> str:
+        t = needle_text.strip()
+        if mode == "value":
+            if ":" in t:
+                t = t.split(":", 1)[1].strip()
+            if t.endswith("."):
+                t = t[:-1].strip()
+        return t
+
+    match_mode = str(args.match_mode or "sentence").strip().lower()
+    if match_mode not in {"sentence", "value"}:
+        raise RuntimeError("--match-mode must be one of: sentence, value")
+
+    filtered: list[dict] = []
+    for row in rows:
+        run_id = str(row.get("run_id", ""))
+        if str(args.run_prefix or "").strip() and not run_id.startswith(str(args.run_prefix)):
+            continue
+        filtered.append(row)
+
+    if not filtered:
+        print(json.dumps({"ok": True, "runs_file": runs_file, "count": 0}, ensure_ascii=False))
+        return 0
+
+    by_pos: dict[int, dict[str, int]] = {}
+    total = exact = partial = unsure = mismatch = 0
+
+    for row in filtered:
+        meta = row.get("metadata", {})
+        if not isinstance(meta, dict):
+            meta = {}
+        idx_raw = meta.get("needle_index", 0)
+        pos_raw = meta.get("position_pct", -1)
+        try:
+            idx = int(idx_raw)
+        except Exception:
+            idx = 0
+        try:
+            pos = int(pos_raw)
+        except Exception:
+            pos = -1
+
+        expected = needles[idx - 1].strip() if idx > 0 and idx <= len(needles) else ""
+        expected = _expected_from_needle(expected, match_mode) if expected else ""
+        completion = clean_completion_text(str(row.get("completion_text", "")))
+        completion_l = completion.lower().strip()
+        expected_l = expected.lower().strip()
+
+        if completion_l == "unsure":
+            status = "unsure"
+            score = 0.0
+            unsure += 1
+        elif expected and completion == expected:
+            status = "exact"
+            score = 1.0
+            exact += 1
+        elif expected_l and expected_l in completion_l:
+            status = "partial_contains"
+            score = 0.8
+            partial += 1
+        else:
+            status = "mismatch"
+            score = 0.0
+            mismatch += 1
+
+        total += 1
+        if pos not in by_pos:
+            by_pos[pos] = {"count": 0, "exact": 0, "partial_contains": 0, "unsure": 0, "mismatch": 0}
+        by_pos[pos]["count"] += 1
+        by_pos[pos][status] += 1
+
+        if bool(args.print_rows):
+            print(
+                json.dumps(
+                    {
+                        "run_id": row.get("run_id", ""),
+                        "needle_index": idx,
+                        "position_pct": pos,
+                        "status": status,
+                        "score": score,
+                        "needle": expected,
+                        "completion_text": completion,
+                    },
+                    ensure_ascii=True,
+                )
+            )
+
+    pos_summary = []
+    for p in sorted(by_pos.keys()):
+        s = by_pos[p]
+        cnt = max(1, int(s["count"]))
+        pos_summary.append(
+            {
+                "position_pct": p,
+                "count": s["count"],
+                "exact": s["exact"],
+                "partial_contains": s["partial_contains"],
+                "unsure": s["unsure"],
+                "mismatch": s["mismatch"],
+                "exact_rate": s["exact"] / cnt,
+            }
+        )
+
+    print(
+        json.dumps(
+            {
+                "ok": True,
+                "runs_file": runs_file,
+                "match_mode": match_mode,
+                "run_prefix": str(args.run_prefix or ""),
+                "count": total,
+                "exact": exact,
+                "partial_contains": partial,
+                "unsure": unsure,
+                "mismatch": mismatch,
+                "exact_rate": (exact / total) if total else 0.0,
+                "by_position": pos_summary,
+            },
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="COMPASS_NIAH benchmark CLI")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -377,6 +610,21 @@ def main() -> int:
     p4.add_argument("--only-probe", action="store_true", help="Only include rows with metadata.probe_type=needle_probe")
     p4.add_argument("--last-n", type=int, default=0, help="Optional tail limit after filtering")
     p4.set_defaults(fn=cmd_verify_logs)
+
+    p5 = sub.add_parser("eval-probes", help="Evaluate probe runs against expected needles")
+    p5.add_argument("--needles-file", required=True, help="TXT/JSON needles list")
+    p5.add_argument("--runs-file", default="", help="Optional runs JSONL path (defaults to NIAH_LOG_JSONL_PATH)")
+    p5.add_argument("--run-prefix", default="", help="Optional run id prefix filter (e.g. probe_natural_v1_)")
+    p5.add_argument("--match-mode", default="sentence", choices=["sentence", "value"], help="Compare against full sentence or value after ':'")
+    p5.set_defaults(fn=cmd_eval_probes)
+
+    p6 = sub.add_parser("eval-posbench", help="Evaluate position benchmark runs (multiple runs per needle).")
+    p6.add_argument("--needles-file", required=True, help="TXT/JSON needles list")
+    p6.add_argument("--runs-file", default="", help="Optional runs JSONL path (defaults to NIAH_LOG_JSONL_PATH)")
+    p6.add_argument("--run-prefix", default="pos_", help="Optional run id prefix filter")
+    p6.add_argument("--match-mode", default="sentence", choices=["sentence", "value"], help="Compare against full sentence or value after ':'")
+    p6.add_argument("--print-rows", action="store_true", help="Print each evaluated row before summary")
+    p6.set_defaults(fn=cmd_eval_posbench)
 
     args = ap.parse_args()
     return int(args.fn(args))

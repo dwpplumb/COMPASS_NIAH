@@ -20,7 +20,19 @@ def _load_needles(path: Path) -> list[str]:
 def _insert_at_char_pos(text: str, needle: str, ratio: float) -> tuple[str, int]:
     r = max(0.0, min(1.0, float(ratio)))
     pos = int(len(text) * r)
-    return text[:pos] + needle + text[pos:], pos
+    if text:
+        right = pos
+        left = pos
+        while right < len(text) and not text[right].isspace():
+            right += 1
+        while left > 0 and not text[left - 1].isspace():
+            left -= 1
+        if right < len(text):
+            pos = right
+        else:
+            pos = left
+    wrapped = f"\n\n{needle.strip()}\n\n"
+    return text[:pos] + wrapped + text[pos:], pos
 
 
 def main() -> int:
