@@ -37,6 +37,8 @@ class AppConfig:
     llm_timeout_s: float
     llm_temperature: float
     llm_max_output_tokens: int
+    llm_max_retries: int
+    llm_retry_backoff_s: float
     embeddings_provider: str
     embeddings_endpoint_url: str
     embeddings_api_key: str
@@ -64,6 +66,8 @@ def load_config() -> AppConfig:
         llm_timeout_s=_env_float("NIAH_LLM_TIMEOUT_S", 120.0),
         llm_temperature=_env_float("NIAH_LLM_TEMPERATURE", 0.0),
         llm_max_output_tokens=_env_int("NIAH_LLM_MAX_OUTPUT_TOKENS", 128),
+        llm_max_retries=_env_int("NIAH_LLM_MAX_RETRIES", 2),
+        llm_retry_backoff_s=_env_float("NIAH_LLM_RETRY_BACKOFF_S", 2.0),
         embeddings_provider=_env_str("NIAH_EMBEDDINGS_PROVIDER", "deterministic").lower(),
         embeddings_endpoint_url=_env_str("NIAH_EMBEDDINGS_ENDPOINT_URL"),
         embeddings_api_key=_env_str("NIAH_EMBEDDINGS_API_KEY"),

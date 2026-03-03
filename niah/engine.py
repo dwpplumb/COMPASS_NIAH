@@ -11,7 +11,7 @@ from niah.models import LLMResponse
 from niah.prompt_io_logger import make_prompt_io_record, write_prompt_io_record
 from niah.prompting import build_full_context_user_prompt, build_rag_user_prompt, build_system_prompt, load_compass_text
 from niah.run_logger import RunLogRecord, now_ts, write_record
-from niah.text_clean import clean_completion_text
+from niah.text_clean import clean_completion_text, recover_full_sentence_from_context
 from niah.token_estimator import estimate_tokens
 
 
@@ -22,6 +22,17 @@ class AskResult:
     prompt_tokens_est: int
     completion_tokens_est: int
     latency_ms: int
+
+
+def _extract_finish_reason(raw: dict) -> str:
+    try:
+        choices = raw.get("choices", [])
+        if isinstance(choices, list) and choices:
+            reason = choices[0].get("finish_reason", "")
+            return str(reason or "")
+    except Exception:
+        return ""
+    return ""
 
 
 def _enforce_prompt_budget(*, cfg: AppConfig, prompt_text: str, mode: str) -> None:
@@ -84,7 +95,11 @@ def ask_full_context(
     t0 = time.time()
     llm = call_chat_completion(cfg=cfg, system_text=system_text, user_text=user_text, temperature=temperature)
     latency_ms = int((time.time() - t0) * 1000)
-    llm = LLMResponse(text=clean_completion_text(llm.text), raw=llm.raw)
+    raw_completion_text = str(llm.text)
+    finish_reason = _extract_finish_reason(llm.raw)
+    cleaned = clean_completion_text(raw_completion_text)
+    recovered = recover_full_sentence_from_context(answer_text=cleaned, context_text=context_text)
+    llm = LLMResponse(text=recovered, raw=llm.raw)
     rec = _mk_record(
         mode="full_context",
         namespace=namespace,
@@ -95,6 +110,9 @@ def ask_full_context(
         metadata={
             "run_id": run_id,
             "temperature": float(cfg.llm_temperature if temperature is None else temperature),
+            "llm_finish_reason": finish_reason,
+            "llm_raw_completion_text": raw_completion_text,
+            "completion_recovered_from_context": bool(recovered != cleaned),
             "retrieved": [],
             **(extra_metadata or {}),
         },
@@ -110,6 +128,7 @@ def ask_full_context(
             user_text=user_text,
             prompt_text=prompt_text_full,
             completion_text=llm.text,
+            raw_completion_text=raw_completion_text,
             metadata=rec.metadata,
         )
         write_prompt_io_record(jsonl_path=cfg.prompt_io_log_jsonl_path, rec=io_rec)
@@ -154,7 +173,11 @@ def ask_rag_sql_embeddings(
     t0 = time.time()
     llm = call_chat_completion(cfg=cfg, system_text=system_text, user_text=user_text, temperature=temperature)
     latency_ms = int((time.time() - t0) * 1000)
-    llm = LLMResponse(text=clean_completion_text(llm.text), raw=llm.raw)
+    raw_completion_text = str(llm.text)
+    finish_reason = _extract_finish_reason(llm.raw)
+    cleaned = clean_completion_text(raw_completion_text)
+    recovered = recover_full_sentence_from_context(answer_text=cleaned, context_text=retrieved_text)
+    llm = LLMResponse(text=recovered, raw=llm.raw)
     rec = _mk_record(
         mode="rag_sql_embeddings",
         namespace=namespace,
@@ -165,6 +188,9 @@ def ask_rag_sql_embeddings(
         metadata={
             "run_id": run_id,
             "temperature": float(cfg.llm_temperature if temperature is None else temperature),
+            "llm_finish_reason": finish_reason,
+            "llm_raw_completion_text": raw_completion_text,
+            "completion_recovered_from_context": bool(recovered != cleaned),
             "retrieved_count": len(hits),
             "retrieved": [
                 {"doc_id": h.doc_id, "chunk_id": h.chunk_id, "distance": h.distance, "meta_json": h.meta_json}
@@ -184,6 +210,7 @@ def ask_rag_sql_embeddings(
             user_text=user_text,
             prompt_text=prompt_text_full,
             completion_text=llm.text,
+            raw_completion_text=raw_completion_text,
             metadata=rec.metadata,
         )
         write_prompt_io_record(jsonl_path=cfg.prompt_io_log_jsonl_path, rec=io_rec)

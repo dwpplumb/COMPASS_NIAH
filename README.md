@@ -31,6 +31,8 @@ $env:NIAH_MAX_CONTEXT_TOKENS="500000"
 $env:NIAH_LLM_MAX_OUTPUT_TOKENS="512"
 $env:NIAH_LLM_TIMEOUT_S="180"
 $env:NIAH_LLM_TEMPERATURE="0.0"
+$env:NIAH_LLM_MAX_RETRIES="2"
+$env:NIAH_LLM_RETRY_BACKOFF_S="2.0"
 ```
 
 ## 2) Reproduce Position Benchmark (Full Context)
@@ -117,7 +119,17 @@ python -m niah.cli eval-posbench --runs-file .\logs\runs_posbench_10k_r01.jsonl 
 ## 6) Notes
 
 - Prompt budget is enforced before every call (`NIAH_MAX_CONTEXT_TOKENS`).
+- For full-context benchmarks, add size guards to avoid accidental small-context runs:
+  - `--expect-prompt-min <tokens>`
+  - `--expect-prompt-max <tokens>`
+  - Example: `python -m niah.cli ask --mode full_context ... --expect-prompt-min 240000 --expect-prompt-max 320000`
 - If output is truncated, increase `NIAH_LLM_MAX_OUTPUT_TOKENS`.
+- Run metadata now includes:
+  - `llm_raw_completion_text`
+  - `llm_finish_reason`
+  - `completion_recovered_from_context`
+  This makes it explicit whether truncation came from provider output or post-processing.
+- Transient provider failures (429/502/503/504 + network timeouts) are retried automatically based on `NIAH_LLM_MAX_RETRIES` and `NIAH_LLM_RETRY_BACKOFF_S`.
 - For RAG mode setup:
   - `python -m niah.cli init-db`
   - `python -m niah.cli ingest ...`

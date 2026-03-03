@@ -19,6 +19,7 @@ class PromptIORecord:
     user_text: str
     prompt_text: str
     completion_text: str
+    raw_completion_text: str
     metadata: dict[str, Any]
 
 
@@ -39,6 +40,7 @@ def make_prompt_io_record(
     user_text: str,
     prompt_text: str,
     completion_text: str,
+    raw_completion_text: str,
     metadata: dict[str, Any],
 ) -> PromptIORecord:
     return PromptIORecord(
@@ -51,5 +53,6 @@ def make_prompt_io_record(
         user_text=user_text,
         prompt_text=prompt_text,
         completion_text=completion_text,
+        raw_completion_text=raw_completion_text,
         metadata=dict(metadata),
     )

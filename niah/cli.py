@@ -8,13 +8,38 @@ from niah.chunking import chunk_text
 from niah.config import load_config
 from niah.embeddings import embed_texts
 from niah.engine import ask_full_context, ask_rag_sql_embeddings, format_hits_for_stdout
+from niah.prompting import build_full_context_user_prompt, build_system_prompt, load_compass_text
 from niah.run_logger import new_run_id
 from niah.text_clean import clean_completion_text
+from niah.token_estimator import estimate_tokens
 
 
 def _read_text(path: str) -> str:
     p = Path(path)
     return p.read_text(encoding="utf-8")
+
+
+def _estimate_full_context_prompt_tokens(*, cfg, context_text: str, question: str) -> int:
+    compass_text = load_compass_text(cfg)
+    system_text = build_system_prompt(cfg=cfg, compass_text=compass_text)
+    user_text = build_full_context_user_prompt(context_text=context_text, question=question)
+    prompt_text_full = f"SYSTEM:\n{system_text}\n\nUSER:\n{user_text}"
+    return int(estimate_tokens(prompt_text_full))
+
+
+def _enforce_expected_prompt_range(*, prompt_tokens_est: int, expect_min: int, expect_max: int) -> None:
+    lo = int(expect_min or 0)
+    hi = int(expect_max or 0)
+    if lo > 0 and prompt_tokens_est < lo:
+        raise RuntimeError(
+            f"Prompt estimate too small: prompt_tokens_est={prompt_tokens_est} < expected_min={lo}. "
+            "This usually means the wrong/small context file is being used."
+        )
+    if hi > 0 and prompt_tokens_est > hi:
+        raise RuntimeError(
+            f"Prompt estimate too large: prompt_tokens_est={prompt_tokens_est} > expected_max={hi}. "
+            "Use a smaller context file or raise expected_max."
+        )
 
 
 def cmd_init_db() -> int:
@@ -69,6 +94,12 @@ def cmd_ask(args: argparse.Namespace) -> int:
         if not args.context_file:
             raise RuntimeError("--context-file is required for mode=full_context")
         context_text = _read_text(args.context_file)
+        prompt_est = _estimate_full_context_prompt_tokens(cfg=cfg, context_text=context_text, question=args.question)
+        _enforce_expected_prompt_range(
+            prompt_tokens_est=prompt_est,
+            expect_min=int(args.expect_prompt_min or 0),
+            expect_max=int(args.expect_prompt_max or 0),
+        )
         out = ask_full_context(
             cfg=cfg,
             namespace=args.namespace,
@@ -226,6 +257,12 @@ def cmd_probe_needles(args: argparse.Namespace) -> int:
         )
         meta = {"probe_type": "needle_probe", "needle_index": i, "question": q}
         if args.mode == "full_context":
+            prompt_est = _estimate_full_context_prompt_tokens(cfg=cfg, context_text=context_text, question=q)
+            _enforce_expected_prompt_range(
+                prompt_tokens_est=prompt_est,
+                expect_min=int(args.expect_prompt_min or 0),
+                expect_max=int(args.expect_prompt_max or 0),
+            )
             out = ask_full_context(
                 cfg=cfg,
                 namespace=args.namespace,
@@ -578,6 +615,8 @@ def main() -> int:
     p2.add_argument("--run-id", default="", help="Optional fixed run id")
     p2.add_argument("--temperature", type=float, default=None, help="Optional override")
     p2.add_argument("--meta-json", default="", help="Optional JSON object stored in log metadata")
+    p2.add_argument("--expect-prompt-min", type=int, default=0, help="Optional lower bound for prompt_tokens_est (full_context only)")
+    p2.add_argument("--expect-prompt-max", type=int, default=0, help="Optional upper bound for prompt_tokens_est (full_context only)")
     p2.set_defaults(fn=cmd_ask)
 
     p2b = sub.add_parser("ask-batch", help="Run multiple questions from file in chosen mode")
@@ -597,6 +636,8 @@ def main() -> int:
     p2c.add_argument("--context-file", default="", help="Required for full_context mode")
     p2c.add_argument("--temperature", type=float, default=None, help="Optional override")
     p2c.add_argument("--run-prefix", default="needle_probe", help="Prefix for deterministic run ids")
+    p2c.add_argument("--expect-prompt-min", type=int, default=0, help="Optional lower bound for prompt_tokens_est (full_context only)")
+    p2c.add_argument("--expect-prompt-max", type=int, default=0, help="Optional upper bound for prompt_tokens_est (full_context only)")
     p2c.set_defaults(fn=cmd_probe_needles)
 
     p3 = sub.add_parser("debug-retrieve", help="Print top retrieved chunks for question")

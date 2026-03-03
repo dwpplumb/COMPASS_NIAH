@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import time
 from typing import Any
 
 from niah.config import AppConfig
@@ -36,14 +37,39 @@ def call_chat_completion(
         "Authorization": f"Bearer {cfg.llm_api_key}",
         "Content-Type": "application/json",
     }
-    resp = requests.post(
-        cfg.llm_endpoint_url,
-        headers=headers,
-        data=json.dumps(body),
-        timeout=float(cfg.llm_timeout_s),
-    )
-    if resp.status_code >= 400:
-        raise RuntimeError(f"LLM HTTP {resp.status_code}: {resp.text[:500]}")
+    max_retries = max(0, int(cfg.llm_max_retries))
+    backoff_s = max(0.1, float(cfg.llm_retry_backoff_s))
+    retry_statuses = {429, 502, 503, 504}
+
+    last_error: str = ""
+    resp = None
+    for attempt in range(max_retries + 1):
+        try:
+            resp = requests.post(
+                cfg.llm_endpoint_url,
+                headers=headers,
+                data=json.dumps(body),
+                timeout=float(cfg.llm_timeout_s),
+            )
+        except requests.RequestException as e:
+            last_error = f"LLM request error: {e}"
+            if attempt < max_retries:
+                time.sleep(backoff_s * (2 ** attempt))
+                continue
+            raise RuntimeError(last_error) from e
+
+        if resp.status_code < 400:
+            break
+
+        last_error = f"LLM HTTP {resp.status_code}: {resp.text[:500]}"
+        if resp.status_code in retry_statuses and attempt < max_retries:
+            time.sleep(backoff_s * (2 ** attempt))
+            continue
+        raise RuntimeError(last_error)
+
+    if resp is None:
+        raise RuntimeError(last_error or "LLM call failed without response")
+
     obj = resp.json()
     try:
         text = str(obj["choices"][0]["message"]["content"])
