@@ -134,7 +134,7 @@ The Internet is changing that. Anyone can publish an essay on the Web, and it ge
 
 Popular magazines made the period between the spread of literacy and the arrival of TV the golden age of the short story. The Web may well make this the golden age of the essay. And that's certainly not something I realized when I started writing this.
 
-=== ESSAY ENDE ===
+-----
 
 The Age of the Essay
 
@@ -234,7 +234,7 @@ Most people I know have problems with Internet addiction. We're all trying to fi
 
 Sounds pretty eccentric, doesn't it? It always will when you're trying to solve problems where there are no customs yet to guide you. Maybe I can't plead Occam's razor; maybe I'm simply eccentric. But if I'm right about the acceleration of addictiveness, then this kind of lonely squirming to avoid it will increasingly be the fate of anyone who wants to get things done. We'll increasingly be defined by what we say no to.
 
-=== ESSAY ENDE ===
+-----
 
 The Acceleration of Addictiveness
 
@@ -348,7 +348,7 @@ Note too that determination and talent are not the whole story. There's a third 
 
 Indeed, if you want to create the most wealth, the way to do it is to focus more on their needs than your interests, and make up the difference with determination.
 
-=== ESSAY ENDE ===
+-----
 
 The Anatomy of Determination 
 
@@ -462,7 +462,7 @@ By inverting this list, we can get a portrait of the "normal" world. It's popula
 
 That's also a fairly accurate description of the past. So startup culture may not merely be different in the way you'd expect any subculture to be, but a leading indicator.
 
-=== ESSAY ENDE ===
+-----
 
 What Kate Saw in Silicon Valley 
 
@@ -662,7 +662,7 @@ As long as the aggressively conventional-minded continue to give themselves away
 
 The number of true things we can't say should not increase. If it does, something is wrong.
 
-=== ESSAY ENDE ===
+-----
 
 The Origins of Wokeness
 
@@ -750,7 +750,7 @@ This situation is not unprecedented. In preindustrial times most people's jobs m
 
 It will be the same with writing. There will still be smart people, but only those who choose to be.
 
-=== ESSAY ENDE ===
+-----
 
 Writes and Write-Nots
 
@@ -961,7 +961,7 @@ Most people would say, I'd take that problem. Give me a million dollars and I'll
 
 Whichever route you take, expect a struggle. Finding work you love is very difficult. Most people fail. Even if you succeed, it's rare to be free to work on what you want till your thirties or forties. But if you have the destination in sight you'll be more likely to arrive at it. If you know you can love work, you're in the home stretch, and if you know what work you love, you're practically there.
 
-=== ESSAY ENDE ===
+-----
 
 How to Do What You Love
 
@@ -1213,7 +1213,7 @@ You have to take that extra step if you want to think clearly. But it's harder, 
 
 How can you see the wave, when you're the water? Always be questioning. That's the only defence. What can't you say? And why?
 
-=== ESSAY ENDE ===
+-----
 
 What You Can't Say
 
@@ -1331,7 +1331,7 @@ When they get interested in something, however random, I encourage them to go pr
 
 Will it have any effect? I have no idea. But that uncertainty may be the most interesting point of all. There is so much more to learn about how to do great work. As old as human civilization feels, it's really still very young if we haven't nailed something so basic. It's exciting to think there are still discoveries to make about discovery. If that's the sort of thing you're interested in.
 
-=== ESSAY ENDE ===
+-----
 
 The Bus Ticket Theory of Genius
 
@@ -1421,7 +1421,7 @@ People often tell me how much my essays sound like me talking. The fact that thi
 
 If you simply manage to write in spoken language, you'll be ahead of 95% of writers. And it's so easy to do: just don't let a sentence through unless it's the way you'd say it to a friend.
 
-=== ESSAY ENDE ===
+-----
 
 Write Like You Talk
 
@@ -1530,7 +1530,7 @@ Till recently we weren't clear in our own minds about the source of the problem.
 
 Those of us on the maker's schedule are willing to compromise. We know we have to have some number of meetings. All we ask from those on the manager's schedule is that they understand the cost.
 
-=== ESSAY ENDE ===
+-----
 
 Maker's Schedule, Manager's Schedule 
 
@@ -1671,7 +1671,7 @@ When I talk to people who've managed to make themselves work on big things, I fi
 
 I think the way to "solve" the problem of procrastination is to let delight pull you instead of making a to-do list push you. Work on an ambitious project you really enjoy, and sail as close to the wind as you can, and you'll leave the right things undone.
 
-=== ESSAY ENDE ===
+-----
 
 Good and Bad Procrastination
 
@@ -1778,7 +1778,7 @@ Turning the other cheek turns out to have selfish advantages. Someone who does y
 
 I suspect a lot of people aren't sure what's the top idea in their mind at any given time. I'm often mistaken about it. I tend to think it's the idea I'd want to be the top one, rather than the one that is. But it's easy to figure this out: just take a shower. What topic do your thoughts keep returning to? If it's not what you want to be thinking about, you may want to change something.
 
-=== ESSAY ENDE ===
+-----
 
 The Top Idea in Your Mind 
 
@@ -1891,7 +1891,7 @@ Good programmers manage to get a lot done anyway. But often it requires practica
 
 Whether or not understanding this can help large organizations, it can certainly help their competitors. The weakest point in big companies is that they don't let individual programmers do great work. So if you're a little startup, this is the place to attack them. Take on the kind of problems that have to be solved in one big brain.
 
-=== ESSAY ENDE ===
+-----
 
 Holding a Program in One's Head
 
@@ -2096,7 +2096,7 @@ If you want to understand startups, understand growth. Growth drives everything 
 
 It's not just that if you want to succeed in some domain, you have to understand the forces driving it. Understanding growth is what starting a startup consists of. What you're really doing (and to the dismay of some observers, all you're really doing) when you start a startup is committing to solve a harder type of problem than ordinary businesses do. You're committing to search for one of the rare ideas that generates rapid growth. Because these ideas are so valuable, finding one is hard. The startup is the embodiment of your discoveries so far. Starting a startup is thus very much like deciding to be a research scientist: you're not committing to solve any specific problem; you don't know for sure which problems are soluble; but you're committing to try to discover something no one knew before. A startup founder is in effect an economic research scientist. Most don't discover anything that remarkable, but some discover relativity.
 
-=== ESSAY ENDE ===
+-----
 
 Startup = Growth
 
