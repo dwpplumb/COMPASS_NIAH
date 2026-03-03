@@ -29,6 +29,13 @@ def _env_float(key: str, default: float) -> float:
         return float(default)
 
 
+def _env_list(key: str, default: str = "") -> list[str]:
+    raw = _env_str(key, default)
+    if not raw:
+        return []
+    return [part.strip() for part in raw.split("||") if part.strip()]
+
+
 @dataclass(frozen=True)
 class AppConfig:
     llm_endpoint_url: str
@@ -37,6 +44,7 @@ class AppConfig:
     llm_timeout_s: float
     llm_temperature: float
     llm_max_output_tokens: int
+    llm_stop_sequences: list[str]
     llm_max_retries: int
     llm_retry_backoff_s: float
     embeddings_provider: str
@@ -66,6 +74,7 @@ def load_config() -> AppConfig:
         llm_timeout_s=_env_float("NIAH_LLM_TIMEOUT_S", 120.0),
         llm_temperature=_env_float("NIAH_LLM_TEMPERATURE", 0.0),
         llm_max_output_tokens=_env_int("NIAH_LLM_MAX_OUTPUT_TOKENS", 128),
+        llm_stop_sequences=_env_list("NIAH_LLM_STOP_SEQUENCES", ""),
         llm_max_retries=_env_int("NIAH_LLM_MAX_RETRIES", 2),
         llm_retry_backoff_s=_env_float("NIAH_LLM_RETRY_BACKOFF_S", 2.0),
         embeddings_provider=_env_str("NIAH_EMBEDDINGS_PROVIDER", "deterministic").lower(),

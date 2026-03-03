@@ -29,6 +29,7 @@ Recommended runtime env overrides for reproducibility:
 ```powershell
 $env:NIAH_MAX_CONTEXT_TOKENS="500000"
 $env:NIAH_LLM_MAX_OUTPUT_TOKENS="512"
+$env:NIAH_LLM_STOP_SEQUENCES="\n||\n\n"
 $env:NIAH_LLM_TIMEOUT_S="180"
 $env:NIAH_LLM_TEMPERATURE="0.0"
 $env:NIAH_LLM_MAX_RETRIES="2"
@@ -101,6 +102,9 @@ python -m niah.cli eval-posbench --runs-file .\logs\runs_posbench_10k_r01.jsonl 
   - `python -m niah.cli eval-posbench --runs-file .\logs\runs_posbench_rep5.jsonl --needles-file .\data\needles.txt --run-prefix rep5_`
 - Print row-level decisions:
   - `python -m niah.cli eval-posbench --runs-file .\logs\runs_posbench_rep5.jsonl --needles-file .\data\needles.txt --run-prefix rep5_ --print-rows`
+- Summaries now separate:
+  - `retrieval_rate` (needle found somewhere in completion)
+  - `format_exact_rate` (completion exactly matches expected target format)
 
 ## 5) Logs and Where to Find Results
 
@@ -124,6 +128,7 @@ python -m niah.cli eval-posbench --runs-file .\logs\runs_posbench_10k_r01.jsonl 
   - `--expect-prompt-max <tokens>`
   - Example: `python -m niah.cli ask --mode full_context ... --expect-prompt-min 240000 --expect-prompt-max 320000`
 - If output is truncated, increase `NIAH_LLM_MAX_OUTPUT_TOKENS`.
+- Optionally set `NIAH_LLM_STOP_SEQUENCES` (separator `||`) to cut off explanations early.
 - Run metadata now includes:
   - `llm_raw_completion_text`
   - `llm_finish_reason`

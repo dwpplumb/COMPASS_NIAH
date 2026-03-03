@@ -33,6 +33,9 @@ def call_chat_completion(
         "temperature": float(cfg.llm_temperature if temperature is None else temperature),
         "max_tokens": int(cfg.llm_max_output_tokens),
     }
+    stop_requested = bool(cfg.llm_stop_sequences)
+    if stop_requested:
+        body["stop"] = list(cfg.llm_stop_sequences)
     headers = {
         "Authorization": f"Bearer {cfg.llm_api_key}",
         "Content-Type": "application/json",
@@ -60,6 +63,31 @@ def call_chat_completion(
 
         if resp.status_code < 400:
             break
+
+        # Some xAI models reject `stop`. Fallback once without stop.
+        if (
+            resp.status_code == 400
+            and stop_requested
+            and "does not support parameter stop" in str(resp.text)
+            and "stop" in body
+        ):
+            body.pop("stop", None)
+            stop_requested = False
+            if attempt < max_retries:
+                continue
+            try:
+                resp = requests.post(
+                    cfg.llm_endpoint_url,
+                    headers=headers,
+                    data=json.dumps(body),
+                    timeout=float(cfg.llm_timeout_s),
+                )
+            except requests.RequestException as e:
+                raise RuntimeError(f"LLM request error after stop-fallback: {e}") from e
+            if resp.status_code < 400:
+                break
+            last_error = f"LLM HTTP {resp.status_code}: {resp.text[:500]}"
+            raise RuntimeError(last_error)
 
         last_error = f"LLM HTTP {resp.status_code}: {resp.text[:500]}"
         if resp.status_code in retry_statuses and attempt < max_retries:

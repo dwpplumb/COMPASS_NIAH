@@ -29,7 +29,9 @@ def build_full_context_user_prompt(*, context_text: str, question: str) -> str:
         "Task:\n"
         "- Find the sentence in the context that answers the question.\n"
         "- Return the full original sentence exactly as written.\n"
-        "- If no supporting sentence exists, answer: UNSURE"
+        "- Output exactly one line only.\n"
+        "- Do not add markdown, quotes, prefixes, or explanations.\n"
+        "- If no supporting sentence exists, answer exactly: UNSURE"
     )
 
 
@@ -42,5 +44,7 @@ def build_rag_user_prompt(*, retrieved_context: str, question: str) -> str:
         "Task:\n"
         "- Find the sentence in the retrieved context that answers the question.\n"
         "- Return the full original sentence exactly as written.\n"
-        "- If no supporting sentence exists, answer: UNSURE"
+        "- Output exactly one line only.\n"
+        "- Do not add markdown, quotes, prefixes, or explanations.\n"
+        "- If no supporting sentence exists, answer exactly: UNSURE"
     )

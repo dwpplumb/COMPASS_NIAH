@@ -391,6 +391,8 @@ def cmd_eval_probes(args: argparse.Namespace) -> int:
     unsure = 0
     missing = 0
     total = len(needles)
+    retrieval_hits = 0
+    format_exact = 0
 
     def _expected_from_needle(needle_text: str, mode: str) -> str:
         t = needle_text.strip()
@@ -419,17 +421,29 @@ def cmd_eval_probes(args: argparse.Namespace) -> int:
             status = "unsure"
             unsure += 1
             score = 0.0
+            retrieval_hit = False
+            format_is_exact = False
         elif completion == expected:
             status = "exact"
             exact += 1
             score = 1.0
+            retrieval_hit = True
+            format_is_exact = True
         elif expected_l and expected_l in completion_l:
             status = "partial_contains"
             partial += 1
             score = 0.8
+            retrieval_hit = True
+            format_is_exact = False
         else:
             status = "mismatch"
             score = 0.0
+            retrieval_hit = False
+            format_is_exact = False
+        if retrieval_hit:
+            retrieval_hits += 1
+        if format_is_exact:
+            format_exact += 1
         print(
             json.dumps(
                 {
@@ -437,6 +451,8 @@ def cmd_eval_probes(args: argparse.Namespace) -> int:
                     "run_id": row.get("run_id", ""),
                     "status": status,
                     "score": score,
+                    "retrieval_hit": retrieval_hit,
+                    "format_exact": format_is_exact,
                     "match_mode": match_mode,
                     "needle": expected,
                     "completion_text": completion,
@@ -457,6 +473,10 @@ def cmd_eval_probes(args: argparse.Namespace) -> int:
                 "unsure": unsure,
                 "missing_run": missing,
                 "exact_recall": (exact / total) if total else 0.0,
+                "retrieval_hits": retrieval_hits,
+                "retrieval_recall": (retrieval_hits / total) if total else 0.0,
+                "format_exact_hits": format_exact,
+                "format_exact_rate": (format_exact / total) if total else 0.0,
             },
             ensure_ascii=False,
         )
@@ -496,6 +516,8 @@ def cmd_eval_posbench(args: argparse.Namespace) -> int:
 
     by_pos: dict[int, dict[str, int]] = {}
     total = exact = partial = unsure = mismatch = 0
+    retrieval_hits = 0
+    format_exact = 0
 
     for row in filtered:
         meta = row.get("metadata", {})
@@ -522,24 +544,48 @@ def cmd_eval_posbench(args: argparse.Namespace) -> int:
             status = "unsure"
             score = 0.0
             unsure += 1
+            retrieval_hit = False
+            format_is_exact = False
         elif expected and completion == expected:
             status = "exact"
             score = 1.0
             exact += 1
+            retrieval_hit = True
+            format_is_exact = True
         elif expected_l and expected_l in completion_l:
             status = "partial_contains"
             score = 0.8
             partial += 1
+            retrieval_hit = True
+            format_is_exact = False
         else:
             status = "mismatch"
             score = 0.0
             mismatch += 1
+            retrieval_hit = False
+            format_is_exact = False
 
         total += 1
+        if retrieval_hit:
+            retrieval_hits += 1
+        if format_is_exact:
+            format_exact += 1
         if pos not in by_pos:
-            by_pos[pos] = {"count": 0, "exact": 0, "partial_contains": 0, "unsure": 0, "mismatch": 0}
+            by_pos[pos] = {
+                "count": 0,
+                "exact": 0,
+                "partial_contains": 0,
+                "unsure": 0,
+                "mismatch": 0,
+                "retrieval_hits": 0,
+                "format_exact": 0,
+            }
         by_pos[pos]["count"] += 1
         by_pos[pos][status] += 1
+        if retrieval_hit:
+            by_pos[pos]["retrieval_hits"] += 1
+        if format_is_exact:
+            by_pos[pos]["format_exact"] += 1
 
         if bool(args.print_rows):
             print(
@@ -550,6 +596,8 @@ def cmd_eval_posbench(args: argparse.Namespace) -> int:
                         "position_pct": pos,
                         "status": status,
                         "score": score,
+                        "retrieval_hit": retrieval_hit,
+                        "format_exact": format_is_exact,
                         "needle": expected,
                         "completion_text": completion,
                     },
@@ -570,6 +618,10 @@ def cmd_eval_posbench(args: argparse.Namespace) -> int:
                 "unsure": s["unsure"],
                 "mismatch": s["mismatch"],
                 "exact_rate": s["exact"] / cnt,
+                "retrieval_hits": s["retrieval_hits"],
+                "retrieval_rate": s["retrieval_hits"] / cnt,
+                "format_exact": s["format_exact"],
+                "format_exact_rate": s["format_exact"] / cnt,
             }
         )
 
@@ -586,6 +638,10 @@ def cmd_eval_posbench(args: argparse.Namespace) -> int:
                 "unsure": unsure,
                 "mismatch": mismatch,
                 "exact_rate": (exact / total) if total else 0.0,
+                "retrieval_hits": retrieval_hits,
+                "retrieval_rate": (retrieval_hits / total) if total else 0.0,
+                "format_exact_hits": format_exact,
+                "format_exact_rate": (format_exact / total) if total else 0.0,
                 "by_position": pos_summary,
             },
             ensure_ascii=False,

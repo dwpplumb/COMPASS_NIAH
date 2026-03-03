@@ -64,7 +64,7 @@ def main() -> int:
     for essay_path in essay_paths:
         essay_text = essay_path.read_text(encoding="utf-8", errors="ignore").strip()
         local_filler = (essay_text[:1000] + "\n") * max(0, int(args.filler_repeat))
-        one = f"{essay_text}\n\n=== ESSAY ENDE ===\n\n{local_filler}"
+        one = f"{essay_text}\n\n-----\n\n{local_filler}"
         blocks.extend([one] * max(1, int(args.base_repeat)))
     base_haystack = "\n".join(blocks).strip() + "\n"
 
